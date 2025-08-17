@@ -2,7 +2,7 @@
 
 健康管理のためのProgressive Web Appです。
 
-**[👉 FitTrackerアプリを開く](https://your-username.github.io/fitTracker/)**
+**[👉 FitTrackerアプリを開く](https://j-komatsu.github.io/fitTracker/)**
 
 ## スマホアプリとしてインストール
 
