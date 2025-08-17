@@ -561,33 +561,7 @@ class FitTracker {
           video: { facingMode: 'user' }
         });
         
-        const video = document.createElement('video');
-        video.srcObject = stream;
-        video.play();
-        
-        video.addEventListener('loadedmetadata', () => {
-          const canvas = document.createElement('canvas');
-          canvas.width = video.videoWidth;
-          canvas.height = video.videoHeight;
-          
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(video, 0, 0);
-          
-          const imageData = canvas.toDataURL('image/jpeg', 0.7);
-          
-          this.data.photos.push({
-            id: Date.now(),
-            image: imageData,
-            date: new Date().toISOString().split('T')[0],
-            timestamp: new Date().toISOString()
-          });
-          
-          this.saveData();
-          this.renderPhotos();
-          this.initPhotoViewer();
-          
-          stream.getTracks().forEach(track => track.stop());
-        });
+        this.showCameraModal(stream);
       } catch (error) {
         console.error('カメラアクセスエラー:', error);
         document.getElementById('photoInput').click();
@@ -595,6 +569,73 @@ class FitTracker {
     } else {
       document.getElementById('photoInput').click();
     }
+  }
+
+  showCameraModal(stream) {
+    // カメラモーダルを作成
+    const modal = document.createElement('div');
+    modal.className = 'camera-modal';
+    modal.innerHTML = `
+      <div class="camera-modal-content">
+        <div class="camera-preview">
+          <video id="cameraVideo" autoplay playsinline></video>
+        </div>
+        <div class="camera-controls">
+          <button class="camera-btn capture-btn" id="capturePhotoBtn">📷 撮影</button>
+          <button class="camera-btn cancel-btn" id="cancelCameraBtn">❌ キャンセル</button>
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    const video = document.getElementById('cameraVideo');
+    video.srcObject = stream;
+    
+    // 撮影ボタンのイベント
+    document.getElementById('capturePhotoBtn').addEventListener('click', () => {
+      this.takePicture(video, stream);
+      this.closeCameraModal(modal, stream);
+    });
+    
+    // キャンセルボタンのイベント
+    document.getElementById('cancelCameraBtn').addEventListener('click', () => {
+      this.closeCameraModal(modal, stream);
+    });
+    
+    // モーダル外クリックで閉じる
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        this.closeCameraModal(modal, stream);
+      }
+    });
+  }
+
+  takePicture(video, stream) {
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(video, 0, 0);
+    
+    const imageData = canvas.toDataURL('image/jpeg', 0.7);
+    
+    this.data.photos.push({
+      id: Date.now(),
+      image: imageData,
+      date: new Date().toISOString().split('T')[0],
+      timestamp: new Date().toISOString()
+    });
+    
+    this.saveData();
+    this.renderPhotos();
+    this.initPhotoViewer();
+  }
+
+  closeCameraModal(modal, stream) {
+    stream.getTracks().forEach(track => track.stop());
+    document.body.removeChild(modal);
   }
 
   handlePhotoUpload(event) {
@@ -631,6 +672,7 @@ class FitTracker {
         <div class="photo-item" onclick="fitTracker.selectPhoto(${index})">
           <img src="${photo.image}" alt="進捗写真">
           <div class="photo-date">${new Date(photo.date).toLocaleDateString('ja-JP')}</div>
+          <button class="delete-btn" onclick="event.stopPropagation(); fitTracker.deletePhoto(${photo.id})">🗑️</button>
         </div>
       `).join('');
   }
@@ -767,6 +809,15 @@ class FitTracker {
     
     this.photoViewer.currentIndex = Math.max(0, Math.min(index, sortedPhotos.length - 1));
     this.updatePhotoViewer();
+  }
+
+  deletePhoto(photoId) {
+    if (confirm('この写真を削除しますか？')) {
+      this.data.photos = this.data.photos.filter(photo => photo.id !== photoId);
+      this.saveData();
+      this.renderPhotos();
+      this.initPhotoViewer();
+    }
   }
 }
 
