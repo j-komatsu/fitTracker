@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FitTracker デバッグ版</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css">
+  <meta name="theme-color" content="#4CAF50">
+  <style>
+    .debug-info {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background: rgba(0,0,0,0.8);
+      color: white;
+      padding: 10px;
+      border-radius: 5px;
+      font-size: 12px;
+      z-index: 9999;
+    }
+  </style>
+</head>
+<body>
+  <div class="debug-info" id="debugInfo">
+    JavaScript読み込み中...
+  </div>
+
+  <div class="app">
+    <!-- ヘッダー -->
+    <header class="header">
+      <h1>FitTracker (デバッグ版)</h1>
+      <div class="date" id="currentDate"></div>
+    </header>
+
+    <!-- メインコンテンツ -->
+    <main class="main">
+      <!-- ナビゲーション -->
+      <nav class="nav">
+        <button class="nav-btn active" data-tab="dashboard">
+          <span class="icon">📊</span>
+          <span>ダッシュボード</span>
+        </button>
+        <button class="nav-btn" data-tab="food">
+          <span class="icon">🍽️</span>
+          <span>食事記録</span>
+        </button>
+        <button class="nav-btn" data-tab="weight">
+          <span class="icon">⚖️</span>
+          <span>体重記録</span>
+        </button>
+        <button class="nav-btn" data-tab="photo">
+          <span class="icon">📷</span>
+          <span>写真記録</span>
+        </button>
+        <button class="nav-btn" data-tab="stats">
+          <span class="icon">📈</span>
+          <span>統計</span>
+        </button>
+      </nav>
+
+      <!-- 食事記録（テスト用） -->
+      <section class="tab-content" id="food">
+        <div class="food-section">
+          <div class="food-header">
+            <h2>食事記録</h2>
+            <div class="mode-toggle">
+              <label class="toggle-label">
+                <input type="checkbox" id="detailModeToggle">
+                <span class="toggle-slider"></span>
+                <span class="toggle-text">詳細モード</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- 簡易版フォーム -->
+          <form class="food-form simple-form" id="simpleFoodForm">
+            <div class="form-group">
+              <label for="simpleFoodName">食品名</label>
+              <input type="text" id="simpleFoodName" placeholder="例: ご飯、サラダ、コーヒーなど" required>
+            </div>
+            <div class="form-group">
+              <label for="simpleCalories">カロリー (kcal)</label>
+              <input type="number" id="simpleCalories" placeholder="例: 300" required>
+            </div>
+            <div class="form-group">
+              <label for="simpleMemo">メモ（任意）</label>
+              <textarea id="simpleMemo" placeholder="例: 朝食、外食、お気に入りなど" rows="2"></textarea>
+            </div>
+            <button type="submit" class="btn-primary">簡単記録</button>
+          </form>
+
+          <!-- 詳細版フォーム -->
+          <form class="food-form detail-form" id="detailFoodForm" style="display: none;">
+            <div class="form-group">
+              <label for="detailFoodName">食品名</label>
+              <input type="text" id="detailFoodName" required>
+            </div>
+            <div class="form-group">
+              <label for="foodWeight">重量 (g)</label>
+              <input type="number" id="foodWeight" required>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="proteinPer100">タンパク質 (g/100g)</label>
+                <input type="number" step="0.1" id="proteinPer100" required>
+              </div>
+              <div class="form-group">
+                <label for="fatPer100">脂質 (g/100g)</label>
+                <input type="number" step="0.1" id="fatPer100" required>
+              </div>
+              <div class="form-group">
+                <label for="carbsPer100">炭水化物 (g/100g)</label>
+                <input type="number" step="0.1" id="carbsPer100" required>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="detailMemo">メモ（任意）</label>
+              <textarea id="detailMemo" placeholder="調理方法、ブランドなど" rows="2"></textarea>
+            </div>
+            <button type="submit" class="btn-primary">詳細記録</button>
+          </form>
+
+          <!-- 履歴から選択 -->
+          <div class="history-selector">
+            <h3>履歴から選択</h3>
+            <div class="history-search">
+              <input type="text" id="historySearch" placeholder="食品名で検索...">
+            </div>
+            <div class="history-items" id="historyItems"></div>
+          </div>
+          
+          <div class="food-list">
+            <h3>今日の食事履歴</h3>
+            <div id="foodHistory"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- その他のセクションは省略 -->
+      <section class="tab-content active" id="dashboard">
+        <div class="dashboard">
+          <h3>ダッシュボード（デバッグ用）</h3>
+          <p>食事記録タブをクリックしてテストしてください</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    // デバッグ用のシンプルバージョン
+    let debugInfo = document.getElementById('debugInfo');
+    debugInfo.textContent = 'JavaScript読み込み完了';
+
+    // 基本的なイベントリスナーのテスト
+    document.addEventListener('DOMContentLoaded', () => {
+      debugInfo.textContent = 'DOM読み込み完了';
+      
+      // タブ切り替え
+      const navBtns = document.querySelectorAll('.nav-btn');
+      const tabContents = document.querySelectorAll('.tab-content');
+
+      navBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const tabName = btn.dataset.tab;
+          debugInfo.textContent = `タブ切り替え: ${tabName}`;
+          
+          navBtns.forEach(b => b.classList.remove('active'));
+          tabContents.forEach(t => t.classList.remove('active'));
+          
+          btn.classList.add('active');
+          document.getElementById(tabName).classList.add('active');
+        });
+      });
+
+      // 詳細モードトグル
+      const detailToggle = document.getElementById('detailModeToggle');
+      if (detailToggle) {
+        detailToggle.addEventListener('change', (e) => {
+          const simpleForm = document.querySelector('.simple-form');
+          const detailForm = document.querySelector('.detail-form');
+          
+          if (e.target.checked) {
+            simpleForm.style.display = 'none';
+            detailForm.style.display = 'block';
+            debugInfo.textContent = '詳細モード ON';
+          } else {
+            simpleForm.style.display = 'block';
+            detailForm.style.display = 'none';
+            debugInfo.textContent = '簡易モード ON';
+          }
+        });
+      }
+
+      // 簡易フォーム送信
+      const simpleForm = document.getElementById('simpleFoodForm');
+      if (simpleForm) {
+        simpleForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          debugInfo.textContent = '簡易フォーム送信成功！';
+          
+          const name = document.getElementById('simpleFoodName').value;
+          const calories = document.getElementById('simpleCalories').value;
+          
+          alert(`食事記録: ${name} - ${calories}kcal`);
+          simpleForm.reset();
+        });
+      }
+
+      // 詳細フォーム送信
+      const detailForm = document.getElementById('detailFoodForm');
+      if (detailForm) {
+        detailForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          debugInfo.textContent = '詳細フォーム送信成功！';
+          
+          const name = document.getElementById('detailFoodName').value;
+          const weight = document.getElementById('foodWeight').value;
+          
+          alert(`詳細記録: ${name} - ${weight}g`);
+          detailForm.reset();
+        });
+      }
+
+      debugInfo.textContent = 'すべての機能準備完了';
+    });
+  </script>
+</body>
+</html>

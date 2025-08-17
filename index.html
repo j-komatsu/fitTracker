@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FitTracker PWA</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css">
+  <meta name="theme-color" content="#4CAF50">
+</head>
+<body>
+  <div class="app">
+    <!-- ヘッダー -->
+    <header class="header">
+      <h1>FitTracker</h1>
+      <div class="date" id="currentDate"></div>
+    </header>
+
+    <!-- メインコンテンツ -->
+    <main class="main">
+      <!-- ナビゲーション -->
+      <nav class="nav">
+        <button class="nav-btn active" data-tab="dashboard">
+          <span class="icon">📊</span>
+          <span>ダッシュボード</span>
+        </button>
+        <button class="nav-btn" data-tab="food">
+          <span class="icon">🍽️</span>
+          <span>食事記録</span>
+        </button>
+        <button class="nav-btn" data-tab="weight">
+          <span class="icon">⚖️</span>
+          <span>体重記録</span>
+        </button>
+        <button class="nav-btn" data-tab="photo">
+          <span class="icon">📷</span>
+          <span>写真記録</span>
+        </button>
+        <button class="nav-btn" data-tab="stats">
+          <span class="icon">📈</span>
+          <span>統計</span>
+        </button>
+      </nav>
+
+      <!-- ダッシュボード -->
+      <section class="tab-content active" id="dashboard">
+        <div class="dashboard">
+          <div class="summary-cards">
+            <div class="card">
+              <h3>今日のカロリー</h3>
+              <div class="value" id="todayCalories">0</div>
+              <div class="target">目標: <span id="targetCalories">2000</span> kcal</div>
+            </div>
+            <div class="card">
+              <h3>現在の体重</h3>
+              <div class="value" id="currentWeight">-</div>
+              <div class="target">目標: <span id="targetWeight">65</span> kg</div>
+            </div>
+          </div>
+          
+          <div class="pfc-summary">
+            <h3>今日のPFCバランス</h3>
+            <div class="pfc-bars">
+              <div class="pfc-bar">
+                <label>タンパク質</label>
+                <div class="bar">
+                  <div class="fill protein" id="proteinBar"></div>
+                </div>
+                <span id="proteinValue">0g</span>
+              </div>
+              <div class="pfc-bar">
+                <label>脂質</label>
+                <div class="bar">
+                  <div class="fill fat" id="fatBar"></div>
+                </div>
+                <span id="fatValue">0g</span>
+              </div>
+              <div class="pfc-bar">
+                <label>炭水化物</label>
+                <div class="bar">
+                  <div class="fill carbs" id="carbsBar"></div>
+                </div>
+                <span id="carbsValue">0g</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 食事記録 -->
+      <section class="tab-content" id="food">
+        <div class="food-section">
+          <div class="food-header">
+            <h2>食事記録</h2>
+            <div class="mode-toggle">
+              <label class="toggle-label">
+                <input type="checkbox" id="detailModeToggle">
+                <span class="toggle-slider"></span>
+                <span class="toggle-text">詳細モード</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- 簡易版フォーム -->
+          <form class="food-form simple-form" id="simpleFoodForm">
+            <div class="form-group">
+              <label for="simpleFoodName">食品名</label>
+              <input type="text" id="simpleFoodName" placeholder="例: ご飯、サラダ、コーヒーなど" required>
+            </div>
+            <div class="form-group">
+              <label for="simpleCalories">カロリー (kcal)</label>
+              <input type="number" id="simpleCalories" placeholder="例: 300" required>
+            </div>
+            <div class="form-group">
+              <label for="simpleMemo">メモ（任意）</label>
+              <textarea id="simpleMemo" placeholder="例: 朝食、外食、お気に入りなど" rows="2"></textarea>
+            </div>
+            <button type="submit" class="btn-primary">簡単記録</button>
+          </form>
+
+          <!-- 詳細版フォーム -->
+          <form class="food-form detail-form" id="detailFoodForm" style="display: none;">
+            <div class="form-group">
+              <label for="detailFoodName">食品名</label>
+              <input type="text" id="detailFoodName" required>
+            </div>
+            <div class="form-group">
+              <label for="foodWeight">重量 (g)</label>
+              <input type="number" id="foodWeight" required>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="proteinPer100">タンパク質 (g/100g)</label>
+                <input type="number" step="0.1" id="proteinPer100" required>
+              </div>
+              <div class="form-group">
+                <label for="fatPer100">脂質 (g/100g)</label>
+                <input type="number" step="0.1" id="fatPer100" required>
+              </div>
+              <div class="form-group">
+                <label for="carbsPer100">炭水化物 (g/100g)</label>
+                <input type="number" step="0.1" id="carbsPer100" required>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="detailMemo">メモ（任意）</label>
+              <textarea id="detailMemo" placeholder="調理方法、ブランドなど" rows="2"></textarea>
+            </div>
+            <button type="submit" class="btn-primary">詳細記録</button>
+          </form>
+
+          <!-- 履歴から選択 -->
+          <div class="history-selector">
+            <h3>履歴から選択</h3>
+            <div class="history-search">
+              <input type="text" id="historySearch" placeholder="食品名で検索...">
+            </div>
+            <div class="history-items" id="historyItems"></div>
+          </div>
+          
+          <div class="food-list">
+            <h3>今日の食事履歴</h3>
+            <div id="foodHistory"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 体重記録 -->
+      <section class="tab-content" id="weight">
+        <div class="weight-section">
+          <h2>体重記録</h2>
+          <form class="weight-form" id="weightForm">
+            <div class="form-group">
+              <label for="weightInput">体重 (kg)</label>
+              <input type="number" step="0.1" id="weightInput" required>
+            </div>
+            <button type="submit" class="btn-primary">体重を記録</button>
+          </form>
+          
+          <div class="weight-chart">
+            <h3>体重推移グラフ</h3>
+            <canvas id="weightChart" width="400" height="200"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- 写真記録 -->
+      <section class="tab-content" id="photo">
+        <div class="photo-section">
+          <h2>写真記録</h2>
+          <div class="photo-controls">
+            <button class="btn-primary" id="captureBtn">写真を撮影</button>
+            <input type="file" id="photoInput" accept="image/*" style="display: none;">
+          </div>
+
+          <!-- 写真ビューアー -->
+          <div class="photo-viewer" id="photoViewer">
+            <h3>進捗ビューアー</h3>
+            
+            <!-- メイン表示エリア -->
+            <div class="main-photo-container">
+              <div class="main-photo-frame">
+                <img id="mainPhoto" src="" alt="進捗写真" style="display: none;">
+                <div class="no-photo-message" id="noPhotoMessage">
+                  まだ写真が記録されていません
+                </div>
+              </div>
+              <div class="photo-info">
+                <div class="photo-date" id="photoDate">-</div>
+                <div class="photo-progress" id="photoProgress">- / -</div>
+              </div>
+            </div>
+
+            <!-- 再生コントロール -->
+            <div class="playback-controls">
+              <button class="control-btn" id="playBtn">▶️</button>
+              <button class="control-btn" id="pauseBtn" style="display: none;">⏸️</button>
+              <button class="control-btn" id="stopBtn">⏹️</button>
+              <button class="control-btn" id="prevBtn">⏮️</button>
+              <button class="control-btn" id="nextBtn">⏭️</button>
+            </div>
+
+            <!-- スピード調整 -->
+            <div class="speed-control">
+              <label for="speedSlider">再生速度:</label>
+              <input type="range" id="speedSlider" min="0.25" max="3" step="0.25" value="1">
+              <span id="speedValue">1x</span>
+            </div>
+
+            <!-- 進捗スクロールバー -->
+            <div class="progress-slider-container">
+              <label for="progressSlider">進捗:</label>
+              <input type="range" id="progressSlider" min="0" max="100" value="0" class="progress-slider">
+              <div class="timeline-labels">
+                <span>最古</span>
+                <span>最新</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- サムネイルギャラリー -->
+          <div class="photo-gallery" id="photoGallery">
+            <h3>写真履歴</h3>
+            <div class="photos" id="photos"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 統計 -->
+      <section class="tab-content" id="stats">
+        <div class="stats-section">
+          <h2>統計</h2>
+          <div class="stats-cards">
+            <div class="card">
+              <h3>週平均カロリー</h3>
+              <div class="value" id="weeklyCalories">0</div>
+            </div>
+            <div class="card">
+              <h3>体重変化</h3>
+              <div class="value" id="weightChange">0 kg</div>
+            </div>
+          </div>
+          
+          <div class="pfc-chart">
+            <h3>PFCバランス (週平均)</h3>
+            <canvas id="pfcChart" width="300" height="300"></canvas>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="app.js"></script>
+  
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then(registration => {
+            console.log('SW registered: ', registration);
+          })
+          .catch(registrationError => {
+            console.log('SW registration failed: ', registrationError);
+          });
+      });
+    }
+  </script>
+</body>
+</html>
