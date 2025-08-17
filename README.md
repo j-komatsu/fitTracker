@@ -2,6 +2,8 @@
 
 健康管理のためのProgressive Web Appです。
 
+**[👉 FitTrackerアプリを開く](https://your-username.github.io/fitTracker/)**
+
 ## スマホアプリとしてインストール
 
 FitTracker PWAは、スマートフォンのホーム画面にアプリとして追加できます。
