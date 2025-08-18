@@ -16,6 +16,7 @@ class FitTracker {
     this.updateDashboard();
     this.renderFoodHistory();
     this.setupTabs();
+    this.loadSettings();
   }
 
   loadData() {
@@ -29,6 +30,9 @@ class FitTracker {
         protein: 120,
         fat: 65,
         carbs: 250
+      },
+      settings: {
+        bmr: null
       }
     };
     
@@ -99,6 +103,33 @@ class FitTracker {
     document.getElementById('progressSlider').addEventListener('input', (e) => {
       this.goToPhotoByProgress(parseInt(e.target.value));
     });
+
+    document.getElementById('deleteAllTodayBtn').addEventListener('click', () => {
+      this.deleteAllTodaysFoods();
+    });
+
+    document.getElementById('bmrForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      this.setBMR();
+    });
+
+    document.getElementById('targetCaloriesForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      this.setTargetCalories();
+    });
+
+    document.getElementById('pfcTargetsForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      this.setPFCTargets();
+    });
+
+    document.getElementById('calculateBMRBtn').addEventListener('click', () => {
+      this.calculateBMR();
+    });
+
+    document.getElementById('applyCalculatedBMR').addEventListener('click', () => {
+      this.applyCalculatedBMR();
+    });
   }
 
   setupTabs() {
@@ -125,6 +156,8 @@ class FitTracker {
           this.initPhotoViewer();
         } else if (tabName === 'food') {
           this.renderHistoryItems();
+        } else if (tabName === 'settings') {
+          this.loadSettings();
         }
       });
     });
@@ -818,6 +851,127 @@ class FitTracker {
       this.renderPhotos();
       this.initPhotoViewer();
     }
+  }
+
+  deleteAllTodaysFoods() {
+    if (confirm('今日の食事履歴をすべて削除しますか？この操作は元に戻せません。')) {
+      const today = new Date().toISOString().split('T')[0];
+      const beforeCount = this.data.foods.length;
+      this.data.foods = this.data.foods.filter(food => food.date !== today);
+      const afterCount = this.data.foods.length;
+      const deletedCount = beforeCount - afterCount;
+      
+      this.saveData();
+      this.updateDashboard();
+      this.renderFoodHistory();
+      this.renderHistoryItems();
+      
+      if (deletedCount > 0) {
+        alert(`${deletedCount}件の食事記録を削除しました。`);
+      } else {
+        alert('削除する食事記録がありませんでした。');
+      }
+    }
+  }
+
+  setBMR() {
+    const bmrInput = document.getElementById('bmrInput');
+    const bmr = parseFloat(bmrInput.value);
+    
+    if (bmr > 0) {
+      if (!this.data.settings) {
+        this.data.settings = {};
+      }
+      this.data.settings.bmr = bmr;
+      this.saveData();
+      bmrInput.value = '';
+      this.loadSettings();
+      alert('基礎代謝を設定しました。');
+    }
+  }
+
+  setTargetCalories() {
+    const targetCaloriesInput = document.getElementById('targetCaloriesInput');
+    const targetCalories = parseFloat(targetCaloriesInput.value);
+    
+    if (targetCalories > 0) {
+      this.data.targets.calories = targetCalories;
+      this.saveData();
+      targetCaloriesInput.value = '';
+      this.loadSettings();
+      this.updateDashboard();
+      alert('目標カロリーを設定しました。');
+    }
+  }
+
+  setPFCTargets() {
+    const protein = parseFloat(document.getElementById('targetProtein').value);
+    const fat = parseFloat(document.getElementById('targetFat').value);
+    const carbs = parseFloat(document.getElementById('targetCarbs').value);
+    
+    if (protein >= 0 && fat >= 0 && carbs >= 0) {
+      this.data.targets.protein = protein;
+      this.data.targets.fat = fat;
+      this.data.targets.carbs = carbs;
+      this.saveData();
+      
+      document.getElementById('targetProtein').value = '';
+      document.getElementById('targetFat').value = '';
+      document.getElementById('targetCarbs').value = '';
+      
+      this.loadSettings();
+      this.updateDashboard();
+      alert('PFC目標を設定しました。');
+    }
+  }
+
+  calculateBMR() {
+    const gender = document.getElementById('gender').value;
+    const age = parseFloat(document.getElementById('age').value);
+    const height = parseFloat(document.getElementById('height').value);
+    const weight = parseFloat(document.getElementById('weight').value);
+    
+    if (!gender || !age || !height || !weight) {
+      alert('すべての項目を入力してください。');
+      return;
+    }
+    
+    let bmr;
+    if (gender === 'male') {
+      bmr = 88.362 + (13.397 * weight) + (4.799 * height) - (5.677 * age);
+    } else {
+      bmr = 447.593 + (9.247 * weight) + (3.098 * height) - (4.330 * age);
+    }
+    
+    this.calculatedBMR = Math.round(bmr);
+    document.getElementById('calculatedBMR').textContent = this.calculatedBMR;
+    document.getElementById('bmrResult').style.display = 'block';
+  }
+
+  applyCalculatedBMR() {
+    if (this.calculatedBMR) {
+      document.getElementById('bmrInput').value = this.calculatedBMR;
+      document.getElementById('bmrResult').style.display = 'none';
+      
+      document.getElementById('gender').value = '';
+      document.getElementById('age').value = '';
+      document.getElementById('height').value = '';
+      document.getElementById('weight').value = '';
+    }
+  }
+
+  loadSettings() {
+    const bmr = this.data.settings?.bmr;
+    const targetCalories = this.data.targets.calories;
+    const protein = this.data.targets.protein;
+    const fat = this.data.targets.fat;
+    const carbs = this.data.targets.carbs;
+    
+    document.getElementById('currentBMR').textContent = bmr || '-';
+    document.getElementById('currentTargetCalories').textContent = targetCalories || '-';
+    document.getElementById('currentProteinTarget').textContent = protein || '-';
+    document.getElementById('currentFatTarget').textContent = fat || '-';
+    document.getElementById('currentCarbsTarget').textContent = carbs || '-';
   }
 }
 
