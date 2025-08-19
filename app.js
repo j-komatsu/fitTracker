@@ -927,11 +927,21 @@ class FitTracker {
 
   calculateBMR() {
     const gender = document.getElementById('gender').value;
-    const age = parseFloat(document.getElementById('age').value);
-    const height = parseFloat(document.getElementById('height').value);
-    const weight = parseFloat(document.getElementById('weight').value);
+    const ageValue = document.getElementById('age').value;
+    const heightValue = document.getElementById('height').value;
+    const weightValue = document.getElementById('bmrWeight').value;
     
-    if (!gender || !age || !height || !weight) {
+    if (!gender || !ageValue || !heightValue || !weightValue) {
+      alert('すべての項目を入力してください。');
+      return;
+    }
+    
+    const age = parseFloat(ageValue);
+    const height = parseFloat(heightValue);
+    const weight = parseFloat(weightValue);
+    
+    if (isNaN(age) || isNaN(height) || isNaN(weight) ||
+        age <= 0 || height <= 0 || weight <= 0) {
       alert('すべての項目を入力してください。');
       return;
     }
@@ -956,7 +966,7 @@ class FitTracker {
       document.getElementById('gender').value = '';
       document.getElementById('age').value = '';
       document.getElementById('height').value = '';
-      document.getElementById('weight').value = '';
+      document.getElementById('bmrWeight').value = '';
     }
   }
 

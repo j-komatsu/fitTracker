@@ -915,14 +915,32 @@ canvas {
 }
 
 .calculation-result {
-  font-size: 14px;
-  color: #2196F3;
-  font-weight: 500;
-  padding: 10px;
-  background: #e3f2fd;
-  border-radius: 6px;
-  border-left: 4px solid #2196F3;
-  margin-top: 10px;
+  padding: 15px;
+  background: #e8f5e8;
+  border-radius: 8px;
+  border-left: 4px solid #4CAF50;
+  margin-top: 15px;
+}
+
+.result-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #2e7d32;
+  margin-bottom: 8px;
+}
+
+.result-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1b5e20;
+  margin-bottom: 10px;
+}
+
+.result-explanation {
+  font-size: 13px;
+  color: #4a4a4a;
+  line-height: 1.4;
+  margin-bottom: 12px;
 }
 
 .form-group select {
