@@ -315,6 +315,31 @@ class FitTracker {
     document.getElementById('proteinBar').style.width = `${proteinPercent}%`;
     document.getElementById('fatBar').style.width = `${fatPercent}%`;
     document.getElementById('carbsBar').style.width = `${carbsPercent}%`;
+    
+    // カロリー超過状態の判定と表示
+    this.updateCalorieStatus(todaysPFC.calories, this.data.targets.calories);
+  }
+
+  updateCalorieStatus(todayCalories, targetCalories) {
+    const calorieCard = document.getElementById('calorieCard');
+    const calorieStatus = document.getElementById('calorieStatus');
+    const difference = todayCalories - targetCalories;
+    
+    // クラスをリセット
+    calorieCard.classList.remove('over-target', 'near-target');
+    
+    if (difference > 0) {
+      // 目標超過
+      calorieCard.classList.add('over-target');
+      calorieStatus.innerHTML = `⚠️ 目標を${Math.round(difference)}kcal超過しています`;
+    } else if (difference > -200) {
+      // 目標に近い（200kcal以内）
+      calorieCard.classList.add('near-target');
+      calorieStatus.innerHTML = `✅ 目標まであと${Math.round(-difference)}kcal`;
+    } else {
+      // 余裕がある
+      calorieStatus.innerHTML = `📊 目標まで${Math.round(-difference)}kcal`;
+    }
   }
 
   renderFoodHistory() {
