@@ -362,7 +362,10 @@ class FitTracker {
               </div>
             </div>
             <div class="food-calories">${food.calories} kcal</div>
-            <button class="edit-btn" onclick="fitTracker.editFood(${food.id})">編集</button>
+            <div class="food-actions">
+              <button class="edit-btn" onclick="fitTracker.editFood(${food.id})">編集</button>
+              <button class="delete-btn" onclick="fitTracker.deleteSingleFood(${food.id})">🗑️</button>
+            </div>
           </div>
         `;
       } else {
@@ -377,7 +380,10 @@ class FitTracker {
               </div>
             </div>
             <div class="food-calories">${Math.round(pfc.calories)} kcal</div>
-            <button class="edit-btn" onclick="fitTracker.editFood(${food.id})">編集</button>
+            <div class="food-actions">
+              <button class="edit-btn" onclick="fitTracker.editFood(${food.id})">編集</button>
+              <button class="delete-btn" onclick="fitTracker.deleteSingleFood(${food.id})">🗑️</button>
+            </div>
           </div>
         `;
       }
@@ -474,6 +480,19 @@ class FitTracker {
     
     if (confirm(`「${food.name}」を編集しますか？`)) {
       this.selectFromHistory(foodId);
+      this.data.foods = this.data.foods.filter(f => f.id !== foodId);
+      this.saveData();
+      this.updateDashboard();
+      this.renderFoodHistory();
+      this.renderHistoryItems();
+    }
+  }
+
+  deleteSingleFood(foodId) {
+    const food = this.data.foods.find(f => f.id === foodId);
+    if (!food) return;
+    
+    if (confirm(`「${food.name}」を削除しますか？この操作は元に戻せません。`)) {
       this.data.foods = this.data.foods.filter(f => f.id !== foodId);
       this.saveData();
       this.updateDashboard();

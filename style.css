@@ -416,32 +416,6 @@ body {
 }
 
 /* 食事履歴 */
-.food-item {
-  background: #f8f9fa;
-  border-radius: 8px;
-  padding: 12px;
-  margin-bottom: 8px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  position: relative;
-}
-
-.edit-btn {
-  background: #FF9800;
-  color: white;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 4px;
-  font-size: 12px;
-  cursor: pointer;
-  margin-left: 10px;
-  transition: background-color 0.3s;
-}
-
-.edit-btn:hover {
-  background: #F57C00;
-}
 
 .food-info h4 {
   margin-bottom: 4px;
@@ -978,6 +952,65 @@ canvas {
 .card {
   border-left: 4px solid transparent;
   transition: border-color 0.3s ease;
+}
+
+/* 食事アクション */
+.food-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.food-item {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 8px;
+  position: relative;
+}
+
+.food-info {
+  margin-bottom: 8px;
+}
+
+.food-calories {
+  font-weight: 600;
+  color: #4CAF50;
+  margin-bottom: 8px;
+  font-size: 16px;
+}
+
+.delete-btn {
+  background: #ffebee;
+  border: 1px solid #ffcdd2;
+  color: #c62828;
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s ease;
+}
+
+.delete-btn:hover {
+  background: #ffcdd2;
+  transform: scale(1.05);
+}
+
+.edit-btn {
+  background: #e3f2fd;
+  border: 1px solid #bbdefb;
+  color: #1976d2;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s ease;
+}
+
+.edit-btn:hover {
+  background: #bbdefb;
+  transform: scale(1.05);
 }
 
 .form-group select {
